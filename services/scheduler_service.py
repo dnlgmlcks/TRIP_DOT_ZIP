@@ -1,20 +1,25 @@
 # 환경설정
-# pip install googlemaps
-import gmaps
 import pandas as pd
-import googlemaps
+import googlemaps  # 이것만 있으면 됩니다.
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from utils.custom_exception import CommonCustomError, RouteNotFoundError
 from config import Settings
-load_dotenv()
-api_key = os.getenv("PLACES_API_KEY")
 
-# API 키
-# 구글 맵 클라이언트 설정 (발급받은 API 키 입력)
+# 환경 변수 로드
+load_dotenv()
+
+# API 키 로드
 setting = Settings()
 places_api_key = setting.places_api_key
+
+# 구글 맵 클라이언트 설정
+# 주의: 반드시 googlemaps.Client를 사용해야 합니다.
+try:
+    gmaps = googlemaps.Client(key=places_api_key)
+except Exception as e:
+    print(f"❌ 클라이언트 생성 실패: {e}")
 
 # 2. STAY_TIME_CONFIG
 # Google Places API Table A & B 기반 평균 체류 시간 설정 Placesearch
@@ -242,3 +247,36 @@ def create_schedule(places: list, start_time_str: str = "09:00", mode: str = 'tr
 
     # 최종 일정 리스트 반환 (성공 응답은 호출부에서 status: success로 감싸서 처리 권장)
     return itinerary
+
+# 6. 스케쥴표 생성 함수
+def print_final_itinerary(itinerary):
+    """create_schedule의 결과를 받아 가독성 좋은 스케쥴표로 출력함."""
+
+    if isinstance(itinerary, dict) and itinerary.get("status") == "error":
+        print(f"❌ 일정 생성 실패: {itinerary.get('message')}")
+        return
+
+    print("\n" + "=" * 50)
+    print(f"🗓️  Trip.Zip이 추천하는 최적 여행 일정")
+    print("=" * 50)
+
+    # 데이터프레임으로 변환하여 표 형식 출력 (선택 사항)
+    df = pd.DataFrame(itinerary)
+    # 컬럼명 한글 변경 및 순서 조정
+    display_df = df[['order', 'arrival', 'departure', 'place_name', 'stay_time']]
+    display_df.columns = ['순서', '도착시간', '출발시간', '장소명', '체류시간']
+
+    print(display_df.to_string(index=False))
+    print("-" * 50)
+
+    # 시각적인 타임라인 형태 출력
+    for i, spot in enumerate(itinerary):
+        print(f"[{spot['arrival']}] {spot['place_name']} 방문 ({spot['stay_time']} 체류)")
+
+        if i < len(itinerary) - 1:
+            # 다음 장소로 이동 중임을 표시
+            next_spot = itinerary[i + 1]
+            print(f"   ↓ (이동 중: {spot['departure']} ~ {next_spot['arrival']})")
+
+    print("=" * 50)
+    print("✨ 즐거운 여행 되세요!")
