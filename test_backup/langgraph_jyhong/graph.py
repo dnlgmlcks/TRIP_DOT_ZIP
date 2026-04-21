@@ -3,8 +3,8 @@
     Location: langgraph_jyhong/graph.py
     Role: graph
 """
-from langgraph.graph import StateGraph, END
-from langgraph_jyhong.state import TempTravelAgentState
+from langgraph.graph import StateGraph
+from test_backup.langgraph_jyhong.state import TempTravelAgentState
 from nodes import validate_travel_plan_node
 
 # 품질검사 확인 후 return 노드 반환

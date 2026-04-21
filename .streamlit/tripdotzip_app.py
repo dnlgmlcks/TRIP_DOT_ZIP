@@ -17,11 +17,11 @@ from dotenv import load_dotenv
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
-from mock_tools.place_tools import search_places
-from mock_tools.schedule_tools import build_schedule
-from mock_tools.weather_tools import get_weather
-from proto.constants import SYSTEM_PROMPT
-from proto.utils import get_ai_response, parse_buttons
+from test_backup.mock_tools.place_tools import search_places
+from test_backup.mock_tools.schedule_tools import build_schedule
+from test_backup.mock_tools import get_weather
+from test_backup.proto.constants import SYSTEM_PROMPT
+from test_backup.proto import get_ai_response, parse_buttons
 
 load_dotenv(ROOT_DIR / ".env")
 
