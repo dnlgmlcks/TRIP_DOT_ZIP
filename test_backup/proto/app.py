@@ -6,8 +6,8 @@ from llm.graph import get_openai_clients
 from config import Settings
 from middlewares.safety_mw import profanity_middleware, pii_middleware
 from middlewares.pipeline import LLMRequest, LLMResponse, Pipeline
-from proto.constants import SYSTEM_PROMPT
-from proto.utils import (
+from test_backup.proto.constants import SYSTEM_PROMPT
+from test_backup.proto.utils import (
     init_app,
     reset_session_state,
     parse_buttons,

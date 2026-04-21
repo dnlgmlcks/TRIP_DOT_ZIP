@@ -29,7 +29,7 @@ class TravelAgentState(TypedDict, total=False):     # 처음부터 모든 값이
     constraints: List[str]  # 제약사항 (반려동물, 실내 등)
 
     # 3. 서비스 데이터 (각 함수 결과 저장용)
-    # place_search_tool의 리턴값: mapped_places 데이터 저장
+    # LLM이 벡터DB에서 호출한 장소 후보지 목록
     mapped_places: List[Dict]
 
     # 사용자가 최종 선택한 장소 목록

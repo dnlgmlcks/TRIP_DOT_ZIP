@@ -26,7 +26,7 @@ from __future__ import annotations
 from typing import Any
 from langchain.agents.middleware import AgentMiddleware
 
-from schemas.agent_state import TravelAgentState
+from test_backup.schemas.agent_state import TravelAgentState
 from services.intent_service import classify_intent_by_rule
 
 

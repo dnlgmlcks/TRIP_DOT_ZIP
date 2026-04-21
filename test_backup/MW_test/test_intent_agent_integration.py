@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 
 from middlewares.intent_mw import IntentRoutingMiddleware
-from schemas.agent_state import TravelAgentState
+from test_backup.schemas.agent_state import TravelAgentState
 
 from config import Settings
 
