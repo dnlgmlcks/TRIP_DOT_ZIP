@@ -40,6 +40,9 @@ class TravelAgentState(TypedDict, total=False):     # 처음부터 모든 값이
     # 사용자가 최종 선택한 장소 목록
     selected_places: List[Dict]
 
+    # 여행 출발 시간
+    start_time: str
+
     # scheduler_service의 리턴값: itinerary 데이터 저장
     # (order, arrival, departure, place_name, stay_time 포함)
     itinerary: List[Dict]

@@ -5,13 +5,13 @@ from llm.nodes.intent_nodes import route_intent_node
 from llm.nodes.trip_nodes import extract_trip_requirements_node, check_missing_info_node, ask_user_for_missing_info_node, select_places_node
 from llm.nodes.weather_nodes import weather_node
 from llm.nodes.response_nodes import build_response_node, blocked_response_node
-from llm.nodes.place_node import place_node
-from llm.nodes.place_search_node import place_search_node
+# from llm.nodes.place_node import place_node
+# from llm.nodes.place_search_node import place_search_node
+from llm.nodes.nodes_mock import search_places_node
+from llm.nodes.schedule_nodes import scheduler_node
 
 # middleware node
 from llm.nodes.safety_nodes import safe_input_node
-
-from llm.nodes.nodes_mock import search_places_node, scheduler_node       # mock node 등록해서 돌아가는지 확인
 from llm.graph.contracts import StateKeys # 규약 임포트
 
 
@@ -24,10 +24,11 @@ workflow.add_node("extract_trip_requirements_node", extract_trip_requirements_no
 workflow.add_node("check_missing_info_node", check_missing_info_node)
 workflow.add_node("ask_user_node", ask_user_for_missing_info_node)
 workflow.add_node("response_node", build_response_node)         # 최종 답변 노드
-workflow.add_node("place_node", place_node)                     # DB에 장소 적재 노드
-workflow.add_node("place_search_node", place_search_node)       # DB에서 장소 선택 노드
+# workflow.add_node("place_node", place_node)                     # DB에 장소 적재 노드
+# workflow.add_node("place_search_node", place_search_node)       # DB에서 장소 선택 노드
 workflow.add_node("weather_node", weather_node)
-workflow.add_node("scheduler_node", scheduler_node)             # mock node (아직 연결 안됨)
+workflow.add_node("place_node", search_places_node)     # mock_node
+workflow.add_node("scheduler_node", scheduler_node)
 
 # middleware node
 workflow.add_node("safe_input_node", safe_input_node)
@@ -68,8 +69,9 @@ workflow.add_conditional_edges(
 )
 
 # 장소 검색 -> 장소 선택 -> 일정 생성
-workflow.add_edge("place_node", "place_search_node")
-workflow.add_edge("place_search_node", "scheduler_node")
+# workflow.add_edge("place_node", "place_search_node")
+# workflow.add_edge("place_search_node", "scheduler_node")
+workflow.add_edge("place_node", "scheduler_node")
 
 # ask_user는 질문을 만든 뒤 종료
 workflow.add_edge("ask_user_node", END)

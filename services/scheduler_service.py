@@ -168,6 +168,8 @@ def create_schedule(places: list, start_time_str: str = "09:00", mode: str = 'tr
     Returns:
         list or dict: 성공 시 일정 리스트, 실패 시 에러 응답 객체(dict) 반환.
     """
+    print("[DEBUG] create_schedule start_time_str =", start_time_str)
+
     # 1. 초기 시간 설정
     try:
         base_date = datetime.now().replace(
