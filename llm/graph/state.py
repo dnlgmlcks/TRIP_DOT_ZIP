@@ -29,7 +29,9 @@ class TravelAgentState(TypedDict, total=False):     # 처음부터 모든 값이
     constraints: List[str]  # 제약사항 (반려동물, 실내 등)
 
     # 여행 날짜
-    travel_dates: str
+    travel_date: str
+    relative_days: int
+    raw_date_text: str
 
     # 3. 서비스 데이터 (각 함수 결과 저장용)
     # LLM이 벡터DB에서 호출한 장소 후보지 목록

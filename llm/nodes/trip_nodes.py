@@ -93,12 +93,49 @@ def _extract_constraints(user_text: str) -> list[str]:
 # -----------------------------
 # 내부 헬퍼: 여행 날짜 추출
 # -----------------------------
-def _extract_travel_date(user_text: str) -> str | None:
+def _extract_date_fields(user_text: str) -> dict:
     """
-    사용자 입력에서 YYYY-MM-DD 형식 날짜를 단순 추출합니다.
-    :param user_text:
-    :return:
+    사용자 입력에서 날짜 관련 필드를 간단 추출합니다.
+    weather_service.resolve_travel_date()에 넘길 재료만 뽑는 용도입니다.
     """
+    import re
+
+    result = {
+        "travel_dates": None,
+        "relative_dates": None,
+        "raw_date_text": None,
+    }
+
+    # 절대 날짜
+    match_date = re.search(r"(20\d{2}-\d{2}-\d{2})", user_text)
+    if match_date:
+        result["travel_dates"] = match_date.group(1)
+        return result
+
+    # 상대 날짜
+    if "오늘" in user_text:
+        result["raw_date_text"] = "오늘"
+        return result
+    if "내일" in user_text:
+        result["raw_date_text"] = "내일"
+        return result
+    if "모레" in user_text:
+        result["raw_date_text"] = "모레"
+        return result
+    if "다음 주 토요일" in user_text or "다음주 토요일" in user_text:
+        result["raw_date_text"] = "다음주토요일"
+        return result
+    if "이번 주 토요일" in user_text or "이번주 토요일" in user_text:
+        result["raw_date_text"] = "이번주토요일"
+        return result
+
+    # n일 뒤 / n일 후
+    match_relative = re.search(r"(\d+)일\s*(뒤|후)", user_text)
+    if match_relative:
+        result["relative_dates"] = int(match_relative.group(1))
+        return result
+
+    return result
 
 
 
@@ -177,6 +214,7 @@ def extract_trip_requirements_node(state: TravelAgentState) -> dict:
     destination = _extract_destination(user_text)
     styles = _extract_styles(user_text)
     constraints = _extract_constraints(user_text)
+    date_info = _extract_date_fields(user_text)
     start_time = _extract_start_time(user_text)
 
     updates = {}
@@ -190,6 +228,15 @@ def extract_trip_requirements_node(state: TravelAgentState) -> dict:
 
     if constraints:
         updates[StateKeys.CONSTRAINTS] = constraints
+
+    if date_info["travel_date"]:
+        updates[StateKeys.TRAVEL_DATE] = date_info["travel_date"]
+
+    if date_info["relative_days"]:
+        updates[StateKeys.RELATIVE_DAYS] = date_info["relative_days"]
+
+    if date_info["raw_date_text"]:
+        updates[StateKeys.RAW_DATE_TEXT] = date_info["raw_date_text"]
 
     # start_time은 선택값
     if start_time:

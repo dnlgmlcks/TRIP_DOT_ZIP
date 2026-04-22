@@ -8,7 +8,7 @@ def build_response_node(state: TravelAgentState) -> dict:
     모든 분석 결과를 종합하여 사용자에게 줄 최종 답변을 생성합니다.
     """
     # 1. 데이터 가져오기
-    weather = state.get(StateKeys.WEATHER_DATA)
+    weather_data = state.get(StateKeys.WEATHER_DATA)
     itinerary = state.get(StateKeys.ITINERARY, [])
     destination = state.get(StateKeys.DESTINATION, "요청하신 지역")
     selected_places = state.get(StateKeys.SELECTED_PLACES, [])
@@ -17,12 +17,36 @@ def build_response_node(state: TravelAgentState) -> dict:
     # 2. 답변 시나리오 구성
     response_text = ""
 
-    # (A) 날씨 정보가 있을 때
-    if weather:
-        # 실제 weather_service 반환 구조에 따라 key는 추후 맞춰줄 수 있음
-        summary = weather.get("summary", "날씨 정보 없음")
-        condition = weather.get("condition", "정보 없음")
-        response_text += f"☀️ **{destination} 날씨 정보**: {summary} (condition: {condition})\n\n"
+    # (A) weather_service 실응답이 있을 때
+    if weather_data and isinstance(weather_data, dict):
+        status = weather_data.get("status")
+
+        if status == "success":
+            weather = weather_data.get("weather", {})
+            conditions = weather.get("conditions", {})
+            ddatchwi = weather.get("ddatchwi", {})
+
+            response_text += (
+                f"☀️ **{destination} 날씨 정보**\n"
+                f"- 설명: {weather.get('description', '정보 없음')}\n"
+                f"- 온도: {weather.get('temperature', '정보 없음')}도\n"
+                f"- 추천 유형: {conditions.get('route_recommendation', '정보 없음')}\n"
+                f"- 이유: {conditions.get('reason', '정보 없음')}\n"
+            )
+
+            if ddatchwi.get("character") or ddatchwi.get("message"):
+                response_text += (
+                    f"\n{ddatchwi.get('character', '')}\n"
+                    f"{ddatchwi.get('message', '')}\n\n"
+                )
+            else:
+                response_text += "\n"
+
+        elif status in ["need_date", "too_far", "invalid_date", "past_date", "error"]:
+            response_text += f"{weather_data.get('message', '날씨 정보를 확인하지 못했습니다.')}\n\n"
+
+        elif weather_data.get("message"):
+            response_text += f"{weather_data.get('message')}\n\n"
 
     # (B) 일정 정보가 있을 때 (최우선순위)
     if itinerary:
@@ -47,7 +71,6 @@ def build_response_node(state: TravelAgentState) -> dict:
     # (D) 목적지는 있는데 장소 검색 결과가 비었을 때
     elif destination:
         response_text = f"{destination}에서 조건에 맞는 장소를 아직 찾지 못했어요. 조건을 조금 완화해서 다시 추천해드릴까요?"
-
 
     # (E) 일반 대화 혹은 데이터 부족 시
     else:

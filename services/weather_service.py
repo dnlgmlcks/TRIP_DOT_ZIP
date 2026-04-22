@@ -464,87 +464,19 @@ def build_weather_based_route_decision(city_name: str, travel_date: str | None =
 # -----------------------------
 # 7. 날짜 계산 (상대 → 절대)
 # -----------------------------
-# from datetime import date, datetime, timedelta
-#
-#
-# def resolve_travel_date(
-#     travel_date: str | None,
-#     relative_days: int | None,
-#     raw_date_text: str | None = None,
-# ) -> str | None:
-#     """
-#     절대 날짜 또는 상대 날짜 또는 자연어 날짜를 최종 여행 날짜로 변환한다.
-#     """
-#
-#     today = date.today()
-#
-#     weekday_map = {
-#         "월요일": 0,
-#         "화요일": 1,
-#         "수요일": 2,
-#         "목요일": 3,
-#         "금요일": 4,
-#         "토요일": 5,
-#         "일요일": 6,
-#     }
-#
-#     def _resolve_korean_relative_weekday(today: date, text: str) -> str | None:
-#         text = text.replace(" ", "")
-#
-#         for day_name, target_weekday in weekday_map.items():
-#             if text == f"이번주{day_name}":
-#                 days_until = (target_weekday - today.weekday()) % 7
-#                 return (today + timedelta(days=days_until)).isoformat()
-#
-#             if text == f"다음주{day_name}":
-#                 days_until = (target_weekday - today.weekday()) % 7
-#                 return (today + timedelta(days=days_until + 7)).isoformat()
-#
-#             if text == f"다다음주{day_name}":
-#                 days_until = (target_weekday - today.weekday()) % 7
-#                 return (today + timedelta(days=days_until + 14)).isoformat()
-#
-#         return None
-#
-#     # 1. 이미 절대 날짜가 있는 경우
-#     if travel_date:
-#         try:
-#             parsed = datetime.strptime(travel_date, "%Y-%m-%d").date()
-#             return parsed.isoformat()
-#         except ValueError:
-#             pass
-#
-#     # 2. n일 뒤 형태
-#     if relative_days is not None:
-#         return (today + timedelta(days=relative_days)).isoformat()
-#
-#     # 3. 자연어 날짜 처리
-#     if raw_date_text:
-#         text = raw_date_text.strip().replace(" ", "")
-#
-#         if text == "오늘":
-#             return today.isoformat()
-#
-#         if text == "내일":
-#             return (today + timedelta(days=1)).isoformat()
-#
-#         if text == "모레":
-#             return (today + timedelta(days=2)).isoformat()
-#
-#         resolved_weekday = _resolve_korean_relative_weekday(today, text)
-#         if resolved_weekday:
-#             return resolved_weekday
-#
-#     return None
+from datetime import date, datetime, timedelta
 
-from datetime import date, timedelta
 
-def fallback_resolve_date_with_rules(raw_text: str | None) -> str | None:
-    if not raw_text:
-        return None
+def resolve_travel_date(
+    travel_date: str | None,
+    relative_days: int | None,
+    raw_date_text: str | None = None,
+) -> str | None:
+    """
+    절대 날짜 또는 상대 날짜 또는 자연어 날짜를 최종 여행 날짜로 변환한다.
+    """
 
     today = date.today()
-    text = raw_text.replace(" ", "")
 
     weekday_map = {
         "월요일": 0,
@@ -556,20 +488,88 @@ def fallback_resolve_date_with_rules(raw_text: str | None) -> str | None:
         "일요일": 6,
     }
 
-    for day_name, target_weekday in weekday_map.items():
-        if text == f"이번주{day_name}":
-            days = (target_weekday - today.weekday()) % 7
-            return (today + timedelta(days=days)).isoformat()
+    def _resolve_korean_relative_weekday(today: date, text: str) -> str | None:
+        text = text.replace(" ", "")
 
-        if text == f"다음주{day_name}":
-            days = (target_weekday - today.weekday()) % 7
-            return (today + timedelta(days=days + 7)).isoformat()
+        for day_name, target_weekday in weekday_map.items():
+            if text == f"이번주{day_name}":
+                days_until = (target_weekday - today.weekday()) % 7
+                return (today + timedelta(days=days_until)).isoformat()
 
-        if text == f"다다음주{day_name}":
-            days = (target_weekday - today.weekday()) % 7
-            return (today + timedelta(days=days + 14)).isoformat()
+            if text == f"다음주{day_name}":
+                days_until = (target_weekday - today.weekday()) % 7
+                return (today + timedelta(days=days_until + 7)).isoformat()
+
+            if text == f"다다음주{day_name}":
+                days_until = (target_weekday - today.weekday()) % 7
+                return (today + timedelta(days=days_until + 14)).isoformat()
+
+        return None
+
+    # 1. 이미 절대 날짜가 있는 경우
+    if travel_date:
+        try:
+            parsed = datetime.strptime(travel_date, "%Y-%m-%d").date()
+            return parsed.isoformat()
+        except ValueError:
+            pass
+
+    # 2. n일 뒤 형태
+    if relative_days is not None:
+        return (today + timedelta(days=relative_days)).isoformat()
+
+    # 3. 자연어 날짜 처리
+    if raw_date_text:
+        text = raw_date_text.strip().replace(" ", "")
+
+        if text == "오늘":
+            return today.isoformat()
+
+        if text == "내일":
+            return (today + timedelta(days=1)).isoformat()
+
+        if text == "모레":
+            return (today + timedelta(days=2)).isoformat()
+
+        resolved_weekday = _resolve_korean_relative_weekday(today, text)
+        if resolved_weekday:
+            return resolved_weekday
 
     return None
+
+# from datetime import date, timedelta
+#
+# def fallback_resolve_date_with_rules(raw_text: str | None) -> str | None:
+#     if not raw_text:
+#         return None
+#
+#     today = date.today()
+#     text = raw_text.replace(" ", "")
+#
+#     weekday_map = {
+#         "월요일": 0,
+#         "화요일": 1,
+#         "수요일": 2,
+#         "목요일": 3,
+#         "금요일": 4,
+#         "토요일": 5,
+#         "일요일": 6,
+#     }
+#
+#     for day_name, target_weekday in weekday_map.items():
+#         if text == f"이번주{day_name}":
+#             days = (target_weekday - today.weekday()) % 7
+#             return (today + timedelta(days=days)).isoformat()
+#
+#         if text == f"다음주{day_name}":
+#             days = (target_weekday - today.weekday()) % 7
+#             return (today + timedelta(days=days + 7)).isoformat()
+#
+#         if text == f"다다음주{day_name}":
+#             days = (target_weekday - today.weekday()) % 7
+#             return (today + timedelta(days=days + 14)).isoformat()
+#
+#     return None
 
 
 # -----------------------------
@@ -674,7 +674,7 @@ def build_weather_route_from_user_prompt(user_prompt: str) -> dict:
 
     # fallback
     if not travel_date:
-        travel_date = fallback_resolve_date_with_rules(
+        travel_date = resolve_travel_date(
             extracted.get("raw_date_text")
         )
 
