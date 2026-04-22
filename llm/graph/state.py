@@ -54,20 +54,24 @@ class TravelAgentState(TypedDict, total=False):     # 처음부터 모든 값이
     missing_slot: List[str]     # 아직 입력되지 않은 필수 정보
     need_weather: bool          # 날씨 조회 필요 여부
 
-    # 4. 지도 및 응답 제어
+    # 5. 지도 및 응답 제어
     # map_tool.py에서 사용하는 마커 및 센터 정보
     map_metadata: Dict
 
     final_response: str         # 사용자에게 보여줄 최종 텍스트 응답
 
-    # 5. 상태값
+    # 6. 상태값
     state_type_cd: str = "01"   # 여행 계획의 단계코드
     # 01: 초기 | 02: 장소 검색 완료 | 03: 일정 생성 완료 | 04: 품질 검사 완료 | 05: 최종 답변 생성 완료
     # TODO: 단계코드 순서 다시 확인.
     
-    # 6. 검증여부
+    # 7. 검증여부
     quality_check: QualityCheck
 
-    # 7. 대화 차단 여부
+    # 8. 대화 차단 여부
     blocked: bool
     blocked_reason: str
+
+    # 9. 대화 요약 여부
+    conversation_summary: str
+    conversation_summarized: bool

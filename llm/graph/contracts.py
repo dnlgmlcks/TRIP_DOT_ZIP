@@ -36,3 +36,7 @@ class StateKeys:
     # 대화 차단 확인용
     BLOCKED = "blocked"
     BLOCK_REASON = "block_reason"
+
+    # 대화 요약용
+    CONVERSATION_SUMMARY = "conversation_summary"
+    CONVERSATION_SUMMARIZED = "conversation_summarized"
