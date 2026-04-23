@@ -299,31 +299,3 @@ def process_user_input(user_text: str) -> None:
     st.session_state.quick_buttons = reply_buttons
 
 
-if __name__ == "__main__":
-    # Streamlit 없이 테스트용 실행
-
-    # fake session_state 만들기
-    class DummySession:
-        def __init__(self):
-            self.messages = []
-            self.quick_buttons = []
-            self.trip_info = {
-                "destination": "미정",
-                "date": "미정",
-                "style": "미정"
-            }
-
-    # st.session_state 흉내내기
-    import types
-    st.session_state = DummySession()
-
-    # 테스트 입력
-    test_input = "다음주 목요일에 부산여행 갈거야"
-
-    # 실행
-    process_user_input(test_input)
-
-    # 결과 출력
-    print("\n=== 최종 결과 ===")
-    for msg in st.session_state.messages:
-        print(msg)
